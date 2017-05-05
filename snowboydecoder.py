@@ -191,3 +191,10 @@ class HotwordDetector(object):
         self.stream_in.stop_stream()
         self.stream_in.close()
         self.audio.terminate()
+        
+    def _prepare_file(self, fname, mode='wb'):
+        wavefile = wave.open(fname, mode)
+        wavefile.setnchannels(self.channels)
+        wavefile.setsampwidth(self._pa.get_sample_size(pyaudio.paInt16))
+        wavefile.setframerate(self.rate)
+        return wavefile
