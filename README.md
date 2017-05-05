@@ -75,6 +75,8 @@ class HotwordDetector(object):
                  audio_gain=1):
 
         def audio_callback(in_data, frame_count, time_info, status):
+            print("in audi cb {} {} {} {}".format(len(in_data), frame_count, time_info, status))
+            self.wavefile.writeframes(in_data)
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
@@ -104,7 +106,14 @@ class HotwordDetector(object):
 
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
+        
         self.audio = pyaudio.PyAudio()
+        
+        print(self.audi.get_format_from_width(
+            self.detector.BitsPerSample() / 8))
+        self.wavefile = self._prepare_file('record.wav')
+        
+        print("opening audi\n\n")
         self.stream_in = self.audio.open(
             input=True, output=False,
             format=self.audio.get_format_from_width(
@@ -113,6 +122,7 @@ class HotwordDetector(object):
             rate=self.detector.SampleRate(),
             frames_per_buffer=2048,
             stream_callback=audio_callback)
+        print(self.stream_in)
 
 
     def start(self, detected_callback=play_audio_file,
